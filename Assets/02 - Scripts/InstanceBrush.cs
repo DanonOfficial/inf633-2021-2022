@@ -31,4 +31,9 @@ public abstract class InstanceBrush : Brush {
         float scale = (float)CustomTerrain.rnd.NextDouble() * scale_diff + scale_min;
         terrain.spawnObject(terrain.getInterp3(x, z), scale, prefab_idx);
     }
+
+    protected void setPrefab_idx(int index)
+    {
+        prefab_idx = index;
+    }
 }
