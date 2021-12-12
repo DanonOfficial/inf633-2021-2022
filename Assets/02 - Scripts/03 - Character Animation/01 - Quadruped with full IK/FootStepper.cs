@@ -48,12 +48,10 @@ public class FootStepper : MonoBehaviour
 
         // START TODO ###################
 
-        float distFromHome = (this.homeTransform.position - this.transform.position).magnitude;
-        float angleFromHome = Quaternion.Angle(this.homeTransform.rotation, this.transform.rotation);
-        // float angleFromHome = ...
+        float distFromHome = Vector3.Distance(transform.position, homeTransform.position);
+        float angleFromHome = Quaternion.Angle(transform.rotation, homeTransform.rotation);
 
-        // Change condition!
-        if (distFromHome > this.distanceThreshold || angleFromHome > this.angleThreshold)
+        if ((distFromHome > distanceThreshold) || (angleFromHome > angleThreshold))
         {
             // END TODO ###################
 
@@ -89,9 +87,13 @@ public class FootStepper : MonoBehaviour
          * Summing such vector to the real home position, you will get a new home position slighly moved.
          */
 
+        // START TODO ###################
+
         Vector3 towardsHome = (homeTransform.position - transform.position).normalized;
         float overshootDistance = distanceThreshold * stepOvershootFraction;
         Vector3 overshootVector = towardsHome * overshootDistance;
+
+        // END TODO ###################
 
         /*
          * Now, we build a raycast system. Check: https://docs.unity3d.com/ScriptReference/Physics.Raycast.html
@@ -104,27 +106,20 @@ public class FootStepper : MonoBehaviour
 
         // START TODO ###################
 
-        // Vector3 raycastOrigin = ...
-        Vector3 raycastOrigin = this.transform.position + overshootVector;
-        Ray ray = new Ray(raycastOrigin, new Vector3(0f, -1f, 0f));
-        RaycastHit hit;
-        if (Physics.Raycast(ray, out hit))
+        Vector3 raycastOrigin = homeTransform.position + overshootVector + homeTransform.up * 2f;
+
+        if (Physics.Raycast(raycastOrigin, -homeTransform.up, out RaycastHit hit, Mathf.Infinity, groundRaycastMask))
         {
             endPos = hit.point;
             endNormal = hit.normal;
             return true;
         }
-        // if (Physics.Raycast(...))
-        // {
-        //  ...
-        //  return true;
-        // }
-
-        // END TODO ###################
 
         endPos = Vector3.zero;
         endNormal = Vector3.zero;
         return false;
+
+        // END TODO ###################
     }
 
     /// <summary>
@@ -157,8 +152,12 @@ public class FootStepper : MonoBehaviour
              * Then, you can normalized by using the moveTime variable.
              */
 
+            // START TODO ###################
+
             timeElapsed += Time.deltaTime;
             float normalizedTime = timeElapsed / moveTime;
+
+            // END TODO ###################
 
             // We could also apply some animation curve(e.g.Easing.EaseInOutCubic) to make the foot go smoother.
             normalizedTime = Easing.EaseInOutCubic(normalizedTime);
@@ -172,8 +171,10 @@ public class FootStepper : MonoBehaviour
 
             // START TODO ###################
 
-            // transform.position = ...
-            transform.position = Vector3.Slerp(startPos, endPos, normalizedTime);
+            Vector3 centerPoint = (startPos + endPos) / 2;
+            centerPoint += homeTransform.up * Vector3.Distance(startPos, endPos) / 2f;
+
+            transform.position = Vector3.Lerp(Vector3.Lerp(startPos, centerPoint, normalizedTime), Vector3.Lerp(centerPoint, endPos, normalizedTime), normalizedTime);
 
             // END TODO ###################
 

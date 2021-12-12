@@ -17,14 +17,14 @@ public class FabricIK : MonoBehaviour
     public int iterations = 10; // Solver iterations per update.
     public float delta = 0.001f; // Distance to the target when the solver stops.
 
-    // Bones information (to be initialized).
+    // Bones information (to be initialize).
     [Header("Bones Information")]
     public Transform[] bones;
     public Vector3[] bonesPositions;
     public float[] bonesLength;
     public float completeLength;
 
-    // Debug.
+    // Others.
     private Vector3[] startingBoneDirectionToNext;
     private Quaternion[] startingBoneRotation;
     private Quaternion startingTargetRotation;
@@ -57,7 +57,7 @@ public class FabricIK : MonoBehaviour
         startingBoneRotation = new Quaternion[chainLength + 1];
         startingTargetRotation = target.rotation;
 
-        // Initialize data.
+        // Initialize data (bones[] and bonesLength[]).
         // We need to fill the arrays described above with the information for each bone.
         var current = this.transform;
         for (var i = bones.Length - 1; i >= 0; i--)
@@ -70,16 +70,8 @@ public class FabricIK : MonoBehaviour
 
             // START TODO ###################
 
-            // Just a placeholder. Change with the correct transform!
-
-            bones[i] = current; // do we need to propagate transform forward
+            bones[i] = current;
             startingBoneRotation[i] = current.rotation;
-
-            //bones[i] = transform.parent;
-
-
-            // bones[i] = ...
-            // startingBoneRotation[i] = ...
 
             // END TODO ###################
 
@@ -90,7 +82,7 @@ public class FabricIK : MonoBehaviour
              * Leaf bones (last bone in the chain):They do not have any length. We are only saving here its direction towards the target.
              * 
              * Mid-bones: You can access to Transform.position for each bone and use Vector3.magnitude to calculate the distance between them.
-             * Update also completeLength to keep track of the total length.
+             * Use completeLength to keep track of the total length.
              */
 
             if (i == bones.Length - 1)
@@ -100,10 +92,9 @@ public class FabricIK : MonoBehaviour
             else
             {
                 // START TODO ###################
-                bonesLength[i] = (bones[i].position - bones[i + 1].position).magnitude;
+
+                bonesLength[i] = (bones[i + 1].position - current.position).magnitude;
                 completeLength += bonesLength[i];
-                // bonesLength[i] = ...
-                // completeLength += ...
 
                 // END TODO ###################
 
@@ -163,20 +154,16 @@ public class FabricIK : MonoBehaviour
 
         // START TODO ###################
 
-        Vector3 directionToTarget = target.position - bones[0].position;
-        float distanceToTarget = directionToTarget.magnitude;
-        // Change condition!
-        print(completeLength);
-        print(distanceToTarget);
-        if (completeLength <= distanceToTarget) { 
-
-            for (int i = 1; i < bonesPositions.Length; i++) {
-                bonesPositions[i] = bonesPositions[i-1] + directionToTarget.normalized * bonesLength[i-1];
+        if ((target.position - bones[0].position).sqrMagnitude >= completeLength * completeLength)
+        {
+            var direction = (target.position - bonesPositions[0]).normalized;
+            for (int i = 1; i < bonesPositions.Length; i++)
+            {
+                bonesPositions[i] = bonesPositions[i - 1] + direction * bonesLength[i - 1];
             }
-            // bonesPositions[i] = ...
-        }
 
-        // END TODO ###################
+            // END TODO ###################
+        }
 
         /*
          * Second, if the target is closer, in such a way that the chain will need to move in order to reach it.
@@ -207,18 +194,15 @@ public class FabricIK : MonoBehaviour
                      */
 
                     // START TODO ###################
-                    if(i == bonesPositions.Length-1){
+
+                    if (i == bonesPositions.Length - 1)
+                    {
                         bonesPositions[i] = target.position;
                     }
                     else
                     {
-                        Vector3 directionToPrevBone = (bonesPositions[i] - bonesPositions[i + 1]).normalized;
-                        bonesPositions[i] = bonesPositions[i + 1] + directionToPrevBone * bonesLength[i];
+                        bonesPositions[i] = bonesPositions[i + 1] + (bonesPositions[i] - bonesPositions[i + 1]).normalized * bonesLength[i];
                     }
-                    // if...
-                    //     bonesPositions[i] = ...
-                    // else...
-                    //     bonesPositions[i] = ...
 
                     // END TODO ###################
                 }
@@ -231,8 +215,8 @@ public class FabricIK : MonoBehaviour
                      */
 
                     // START TODO ###################
-                    Vector3 directionToPrevBone = (bonesPositions[i] - bonesPositions[i-1]).normalized;
-                    bonesPositions[i] = bonesPositions[i-1] + directionToPrevBone * bonesLength[i-1];
+
+                    bonesPositions[i] = bonesPositions[i - 1] + (bonesPositions[i] - bonesPositions[i - 1]).normalized * bonesLength[i-1];
 
                     // END TODO ###################
 
