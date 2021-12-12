@@ -9,7 +9,7 @@ public class CustomTerrain : MonoBehaviour {
     public Text debug;
 
     [Header("Global brushes attributes")]
-    [Range(1, 100)]
+    [Range(1, 300)]
     public int brush_radius = 10;
 
     [Header("Instance brush attributes")]
@@ -34,6 +34,7 @@ public class CustomTerrain : MonoBehaviour {
     private GameObject highlight_go;
     private Projector highlight_proj;
     public static System.Random rnd = new System.Random();
+    private float [,] smellGrid;
 
     [SerializeField] Camera cam;
 
@@ -75,6 +76,26 @@ public class CustomTerrain : MonoBehaviour {
         saveDetails();
 
         cam = GameObject.FindGameObjectWithTag("SecondCamera").GetComponent<Camera>();
+        smellGrid = new float[(int)terrain_size.x, (int)terrain_size.z];
+    }
+
+    public void updateSmellGrid(Vector2 pos, int smellRadius)
+    {
+        int posx = (int)pos.x;
+        int posy = (int)pos.y;
+        for(int i = posx - smellRadius; i < posx + smellRadius && i < (int)terrain_size.x; i++)
+        {
+            for(int j = posy - smellRadius; j < posx + smellRadius && j < (int)terrain_size.z; j++)
+            {
+                smellGrid[i, j] = (pos - new Vector2(i, j)).magnitude; // Todo: remove values when grass erased
+            }
+        }
+        
+    }
+
+    public float getFromSmellGrid(Vector2 pos)
+    {
+        return smellGrid[(int)pos.x, (int)pos.y];
     }
 
     // Called once per frame
@@ -169,6 +190,14 @@ public class CustomTerrain : MonoBehaviour {
     }
 
     // Spawn a new object (tree)
+
+    public Vector3 getSpanwObjectPosition(Vector3 loc)
+    {
+        loc = new Vector3(loc.x / heightmap_width,
+                  loc.y / terrain_data.heightmapScale.y,
+                  loc.z / heightmap_height);
+        return loc;
+    }
     public void spawnObject(Vector3 loc, float scale, int proto_idx) {
         TreeInstance obj = new TreeInstance();
         loc = new Vector3(loc.x / heightmap_width,
@@ -277,4 +306,6 @@ public class CustomTerrain : MonoBehaviour {
     public Brush getBrush() {
         return current_brush;
     }
+
+
 }

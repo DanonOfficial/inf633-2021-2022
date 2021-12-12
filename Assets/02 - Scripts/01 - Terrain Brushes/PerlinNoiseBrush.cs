@@ -13,9 +13,8 @@ public class PerlinNoiseBrush : TerrainBrush
             for (int xi = -radius; xi <= radius; xi++)
             {
                 float perlinNoiseValue = Mathf.PerlinNoise( ( (float)xi + radius + Random.Range(0, 100)) / (2 * radius + 100), ((float)zi + radius + Random.Range(0, 100)) / (2 * radius + 100));
-                print(perlinNoiseValue);
-                print(Random.Range(0, 100));
-                terrain.set(x + xi, z + zi, perlinNoiseValue * multiplier);
+                float currentValue = terrain.get(x + xi, z + zi);
+                terrain.set(x + xi, z + zi, currentValue +  perlinNoiseValue * multiplier);
             }
         }
     }

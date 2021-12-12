@@ -48,11 +48,12 @@ public class FootStepper : MonoBehaviour
 
         // START TODO ###################
 
-        // float distFromHome = ...
+        float distFromHome = (this.homeTransform.position - this.transform.position).magnitude;
+        float angleFromHome = Quaternion.Angle(this.homeTransform.rotation, this.transform.rotation);
         // float angleFromHome = ...
 
         // Change condition!
-        if (false)
+        if (distFromHome > this.distanceThreshold || angleFromHome > this.angleThreshold)
         {
             // END TODO ###################
 
@@ -104,7 +105,15 @@ public class FootStepper : MonoBehaviour
         // START TODO ###################
 
         // Vector3 raycastOrigin = ...
-
+        Vector3 raycastOrigin = this.transform.position + overshootVector;
+        Ray ray = new Ray(raycastOrigin, new Vector3(0f, -1f, 0f));
+        RaycastHit hit;
+        if (Physics.Raycast(ray, out hit))
+        {
+            endPos = hit.point;
+            endNormal = hit.normal;
+            return true;
+        }
         // if (Physics.Raycast(...))
         // {
         //  ...
@@ -164,6 +173,7 @@ public class FootStepper : MonoBehaviour
             // START TODO ###################
 
             // transform.position = ...
+            transform.position = Vector3.Slerp(startPos, endPos, normalizedTime);
 
             // END TODO ###################
 
@@ -173,7 +183,7 @@ public class FootStepper : MonoBehaviour
 
             // START TODO ###################
 
-            // transform.rotation = ...
+            transform.rotation = Quaternion.Slerp(startRot, endRot, normalizedTime);
 
             // END TODO ###################
 

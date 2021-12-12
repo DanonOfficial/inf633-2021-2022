@@ -13,6 +13,8 @@ public class GeneticAlgo : MonoBehaviour
 
     [Header("Dynamic elements")]
     public float vegetationGrowthRate = 1.0f;
+    public float vegetationMaxAltitude = 100f;
+    public float vegetationMinAltitude = 10f;
     public float currentGrowth;
 
     private List<GameObject> animals;
@@ -66,6 +68,12 @@ public class GeneticAlgo : MonoBehaviour
         {
             int x = (int)(UnityEngine.Random.value * detail_sz.x);
             int y = (int)(UnityEngine.Random.value * detail_sz.y);
+            float height = customTerrain.get(x, y);
+            if(height > vegetationMaxAltitude && height < vegetationMinAltitude || true)
+            {
+                continue;
+            }
+            //customTerrain.updateSmellGrid(new Vector2(x, y), 4);
             details[y, x] = 1;
             currentGrowth -= 1.0f;
         }
@@ -83,6 +91,7 @@ public class GeneticAlgo : MonoBehaviour
         animal.GetComponent<Animal>().Setup(customTerrain, this);
         animal.transform.position = position;
         animal.transform.Rotate(0.0f, UnityEngine.Random.value * 360.0f, 0.0f);
+        //Animal an = animal.GetCom
         return animal;
     }
 
@@ -96,7 +105,10 @@ public class GeneticAlgo : MonoBehaviour
         float x = UnityEngine.Random.value * width;
         float z = UnityEngine.Random.value * height;
         float y = customTerrain.getInterp(x / scale.x, z / scale.z);
-        return makeAnimal(new Vector3(x, y, z));
+        print(x);
+        print(y);
+        print(z);
+        return makeAnimal(new Vector3(x, y + 10, z));
     }
 
     /// <summary>

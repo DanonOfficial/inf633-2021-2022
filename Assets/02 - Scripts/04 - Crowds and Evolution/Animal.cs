@@ -25,6 +25,11 @@ public class Animal : MonoBehaviour
     public float stepAngle = 10.0f;
     public int nEyes = 5;
 
+    [Header("Sensor - Smell")]
+    public int nNoses = 1;
+    public float smellStrength = 2;
+
+
     private int[] networkStruct;
     private SimpleNeuralNet brain = null;
 
@@ -33,10 +38,12 @@ public class Animal : MonoBehaviour
     private int[,] details = null;
     private Vector2 detailSize;
     private Vector2 terrainSize;
+    
 
     // Animal.
     private Transform tfm;
     private float[] vision;
+    private float smell;
 
     // Genetic alg.
     private GeneticAlgo genetic_algo = null;
@@ -48,7 +55,8 @@ public class Animal : MonoBehaviour
     {
         // Network: 1 input per receptor, 1 output per actuator.
         vision = new float[nEyes];
-        networkStruct = new int[] { nEyes, 5, 1 };
+        smell = 0;
+        networkStruct = new int[] { nEyes + 1, 5, 1 }; // nEyes + number of noses(1)
         energy = maxEnergy;
         tfm = transform;
 
@@ -106,6 +114,10 @@ public class Animal : MonoBehaviour
         UpdateVision();
 
         // 2. Use brain.
+        float[] allInputs = new float[nEyes + 1];
+        vision.CopyTo(allInputs, 0);
+
+        vision[vision.Length - 1] = terrain.getFromSmellGrid(new Vector2(dx, dy));
         float[] output = brain.getOutput(vision);
 
         // 3. Act using actuators.
