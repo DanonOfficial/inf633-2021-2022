@@ -8,7 +8,9 @@ using UnityEngine;
 public class GPUGardener : MonoBehaviour
 {
 	public int count = 10;
-	public GameObject prefab;
+	public GameObject prefab1;
+	public GameObject prefab2;
+	public GameObject prefab3;
 	public bool gridSpawn = true;
 	public float gridSize = 10.0f;
 	public float waterHeight = 13.5f;
@@ -30,16 +32,12 @@ public class GPUGardener : MonoBehaviour
 				{
 					if (terrain.get(xi,zi) > waterHeight)
                     {
-						var instance = Instantiate(prefab) as GameObject;
-
-						Vector3 position = terrain.getInterp3(xi, zi);// new Vector3(xi, terrain.getInterp(xi, zi), zi);\
-						position.y = terrainData.GetInterpolatedHeight(xi / width, zi / height);
-						//position.y = terrain.get(xi, zi);
+						var instance = Instantiate(getRandomGrass()) as GameObject;
+						float x = xi + UnityEngine.Random.Range(0f, gridSize/3.0f);
+						float z = zi + UnityEngine.Random.Range(0f, gridSize / 3.0f);
+						Vector3 position = terrain.getInterp3(x, z);// new Vector3(xi, terrain.getInterp(xi, zi), zi);\
+						position.y = terrainData.GetInterpolatedHeight(x / width, z / height);
 						instance.transform.position = position;
-						if (zi < 100 && xi < 100)
-                        {
-							print(instance.transform.position);
-                        }
 						float scale_diff = Mathf.Abs(terrain.max_scale - terrain.min_scale);
 						float scale_min = Mathf.Min(terrain.max_scale, terrain.min_scale);
 						float scale = (float)CustomTerrain.rnd.NextDouble() * scale_diff + scale_min;
@@ -53,12 +51,28 @@ public class GPUGardener : MonoBehaviour
 		{
 			for (int i = 0; i < count; i++)
 			{
-				var instance = Instantiate(prefab) as GameObject;
+				var instance = Instantiate(getRandomGrass()) as GameObject;
 				instance.transform.position = GetRandomPosition(width, height);
 				instance.transform.localScale = GetRandomScale();
 			}
 		}
 
+	}
+
+	private GameObject getRandomGrass()
+    {
+		float value = UnityEngine.Random.Range(0.0f, 1f);
+		if (value < 0.25f)
+		{
+			return prefab2;
+		} else if (value < 0.75f)
+        {
+			return prefab1;
+        }
+        else
+        {
+			return prefab3;
+        }
 	}
 
 	private Vector3 GetRandomScale()

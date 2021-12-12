@@ -50,7 +50,7 @@ public class Animal : MonoBehaviour
 
     // Renderer.
     private Material mat = null;
-
+    private CapsuleAutoController controller;
     void Start()
     {
         // Network: 1 input per receptor, 1 output per actuator.
@@ -65,9 +65,10 @@ public class Animal : MonoBehaviour
         MeshRenderer renderer = GetComponentInChildren<MeshRenderer>();
         if (renderer != null)
             mat = renderer.material;
+        controller = GetComponentInParent<CapsuleAutoController>();
     }
 
-    void Update()
+    void FixedUpdate()
     {
         // In case something is not initialized...
         if (brain == null)
@@ -85,18 +86,22 @@ public class Animal : MonoBehaviour
         int dy = (int)((tfm.position.z / terrainSize.y) * detailSize.y);
 
         // For each frame, we lose lossEnergy
-        energy -= lossEnergy;
+        //energy -= lossEnergy;
 
         // If the animal is located in the dimensions of the terrain and over a grass position (details[dy, dx] > 0), it eats it, gain energy and spawn an offspring.
         if ((dx >= 0) && dx < (details.GetLength(1)) && (dy >= 0) && (dy < details.GetLength(0)) && details[dy, dx] > 0)
         {
             // Eat (remove) the grass and gain energy.
+
             details[dy, dx] = 0;
+
             energy += gainEnergy;
             if (energy > maxEnergy)
                 energy = maxEnergy;
-
+            controller.setEatingAnimation();
             genetic_algo.addOffspring(this);
+            
+            return;
         }
 
         // If the energy is below 0, the animal dies.

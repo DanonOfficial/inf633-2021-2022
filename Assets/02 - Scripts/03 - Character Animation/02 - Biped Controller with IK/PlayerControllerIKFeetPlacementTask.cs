@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿/*using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
@@ -93,12 +93,12 @@ public class PlayerControllerIKFeetPlacementTask : MonoBehaviour
 
         MovePelvisHeight();
 
-        /* 
+        *//* 
          * You need to set to 1 the IK weight in the animator controller for the position of each foot, right and left one. 
          * Remember, weight = 1 means in this case that such foot will be fully placed in terms of position (not rotation) to match the ground, 
          * and the walking animation will not have any effect in his movement.
          * Hint: Search in the API for a pre-built method for the Animator class to assign IK weights to different body parts of an humanoid rig (anim.Set...).
-         */
+         *//*
 
         // START TODO ###################
 
@@ -106,7 +106,7 @@ public class PlayerControllerIKFeetPlacementTask : MonoBehaviour
         // END TODO ###################
 
 
-        /* 
+        *//* 
          * In this part, we have a boolean variable (useProIKFeature) that can be checked in the inspector during run-time.
          * This boolean should perform a similar operation compared to the previous task. However, there are two differences:
          * 
@@ -114,7 +114,7 @@ public class PlayerControllerIKFeetPlacementTask : MonoBehaviour
          * 2. Instead of assigning a weight of 1, you will set a variable parameter. This parameter is defined in the Animator Controller that the character has assigned to it (Parameters tab in Animator window).
          *    You will need to retrieve by name such variable (float) from the Animator. 
          *    Hint: Check the Animator Controller or the beginning of the script to know the variables.
-         */
+         *//*
 
         if (useProIKFeature)
         {
@@ -125,14 +125,14 @@ public class PlayerControllerIKFeetPlacementTask : MonoBehaviour
         }
 
 
-        /* 
+        *//* 
          * Finally, we need to move both feet to the desired IK position and rotation to match the ground.
          * To do so, you will just need to call the function "MoveFeetToIKPoint" once for each foot with the correct parameters:
          * - AvatarIKGoal foot: Each foot, which are already built in the enum variable.
          * - Vector3 positionIKHolder: Desired IK position for each foot.
          * - Quaternion rotationIKHolder: Desired IK rotation for each foot.
          * - ref float lastFootPositionY: Previous foot position in Y passed by reference.
-         */
+         *//*
 
         // START TODO ###################
 
@@ -147,11 +147,11 @@ public class PlayerControllerIKFeetPlacementTask : MonoBehaviour
 
     void MoveFeetToIKPoint(AvatarIKGoal foot, Vector3 positionIKHolder, Quaternion rotationIKHolder, ref float lastFootPositionY)
     {
-        /* 
+        *//* 
          * Before moving the feet to the new IK goal position (positionIKHolder), you need to retrieve the current IK position of each foot.
          * Create a Vector3 called "targetIKPosition" and save the current IK position for the foot you are providing to the function.
          * Hint: Search in the API for a pre-built method for the Animator class to get IK positions for different body parts (anim.Get...).
-         */
+         *//*
 
         // START TODO ###################
 
@@ -168,12 +168,12 @@ public class PlayerControllerIKFeetPlacementTask : MonoBehaviour
             positionIKHolder = transform.InverseTransformPoint(positionIKHolder);
 
 
-            /* 
+            *//* 
             * Here, you will have to use the Mathf.Lerp function to calculate the necessary translation in Y to move the last foot Y position to
             * the target IK position, by a particular speed (which is "feetToIKPositionSpeed"). 
             * Save the necessary Y translation in a float called "yVariable".
             * Hint: The target IK position comes in a Vector3. Remember to access only the Y coordinate.
-            */
+            *//*
 
             // START TODO ###################
 
@@ -269,3 +269,4 @@ public class PlayerControllerIKFeetPlacementTask : MonoBehaviour
 
 
 }
+*/

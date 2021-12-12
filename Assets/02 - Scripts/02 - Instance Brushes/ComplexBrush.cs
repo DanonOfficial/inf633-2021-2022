@@ -58,7 +58,7 @@ public class ComplexBrush : InstanceBrush
             return;
         }
         print((int)(4));
-        setPrefab_idx((int)(3));
+        setPrefab_idx((int)(5));
         spawnObject(resultX, resultZ);
 
     }

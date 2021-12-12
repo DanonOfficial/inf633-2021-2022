@@ -1,4 +1,4 @@
-using System.Collections;
+/*using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -40,11 +40,11 @@ public class FootStepper : MonoBehaviour
             return;
         }
 
-        /*
+        *//*
          * First, we want to calculate the distance from the GameObject where this script is attached (target, red sphere) to the home position of the respective leg (blue chip).
          * We also calculate the quaternion between the current rotation and the home rotation.
          * If such distance is larger than the threshold step, OR the angle difference is larger than the angle threshold, we call the coroutine to move the leg.
-         */
+         *//*
 
         // START TODO ###################
 
@@ -81,26 +81,26 @@ public class FootStepper : MonoBehaviour
     /// <returns></returns>
     bool GetGroundedEndPosition(out Vector3 endPos, out Vector3 endNormal)
     {
-        /*
+        *//*
          * First, we calculate the normalized vector that goes from the current position to the home position. It will describe the direction of our overshoot (offset) vector.
          * Then, you can create a factor by taking the distance threshold and modifying it by a fraction [0, 1].
          * Finally, you can multiply such new factor by the normalized distance previously calculated.
          * The result is a vector in the direction of the movement when the foot is coming back to the home position, with a small magnitude.
          * Summing such vector to the real home position, you will get a new home position slighly moved.
-         */
+         *//*
 
         Vector3 towardsHome = (homeTransform.position - transform.position).normalized;
         float overshootDistance = distanceThreshold * stepOvershootFraction;
         Vector3 overshootVector = towardsHome * overshootDistance;
 
-        /*
+        *//*
          * Now, we build a raycast system. Check: https://docs.unity3d.com/ScriptReference/Physics.Raycast.html
          * The ray will detect a collision with the terrain and use such information to place the foot accordingly on the ground.
          * First, you create the origin (Vector3) of your ray, which will be in the home position (remember to add the overshoot vector calculated before).
          * You can also add some vertical y displacement to let the ray having more space when going down and avoiding undesired collisions.
          * Then, throw the ray downwards, and save the position and normal vector of the hit in "endPos" and "endNormal" respectively.
          * If there is a collision, return true. Otherwise, you can return false.
-         */
+         *//*
 
         // START TODO ###################
 
@@ -152,10 +152,10 @@ public class FootStepper : MonoBehaviour
 
         do
         {
-            /*
+            *//*
              * First, you need to keep the record of the total elapsed time.
              * Then, you can normalized by using the moveTime variable.
-             */
+             *//*
 
             timeElapsed += Time.deltaTime;
             float normalizedTime = timeElapsed / moveTime;
@@ -163,12 +163,12 @@ public class FootStepper : MonoBehaviour
             // We could also apply some animation curve(e.g.Easing.EaseInOutCubic) to make the foot go smoother.
             normalizedTime = Easing.EaseInOutCubic(normalizedTime);
 
-            /*
+            *//*
              * We know startPos and endPos. We could interpolate directly from the starting point to the end point, but we have a problem: The movement would be straight and flat on the terrain. Try it out!
              * transform.position = Vector3.Lerp(startPoint, endPoint, normalizedTime);
              * We need to find a way to guide the foot from the ground to a lifted position, and then put it back on the ground. 
              * Any idea? Just a tip: https://en.wikipedia.org/wiki/B%C3%A9zier_curve#Constructing_B.C3.A9zier_curves
-             */
+             *//*
 
             // START TODO ###################
 
@@ -177,9 +177,9 @@ public class FootStepper : MonoBehaviour
 
             // END TODO ###################
 
-            /*
+            *//*
              * You just need now to also move from the starting rotation and the ending rotation.
-             */
+             *//*
 
             // START TODO ###################
 
@@ -211,3 +211,4 @@ public class FootStepper : MonoBehaviour
         Gizmos.DrawWireCube(homeTransform.position, Vector3.one * 0.1f);
     }
 }
+*/

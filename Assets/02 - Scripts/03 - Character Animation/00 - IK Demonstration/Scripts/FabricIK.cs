@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿/*using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
@@ -38,14 +38,14 @@ public class FabricIK : MonoBehaviour
 
     private void Init()
     {
-        /*
+        *//*
          * If chain length is n, we have n+1 bones.
          * See bones as a set of a joint (bonePosition, represented as "O") and a length (bones Length, equal to chainLength).
          * The last bone (leaf bone, b3) does not have any length and still has a joint that can move/rotate.
          * 
          * b3   c2   b2    c1   b1    c0   b0
          * O ======== O ======== O ======== O
-         */
+         *//*
 
         bones = new Transform[chainLength + 1];
         bonesPositions = new Vector3[chainLength + 1];
@@ -63,10 +63,10 @@ public class FabricIK : MonoBehaviour
         for (var i = bones.Length - 1; i >= 0; i--)
         {
 
-            /*
+            *//*
              * Fill bones[i] with the transform of the current sphere where we are.
              * We also save the rotation in startingBoneRotation[i].
-             */
+             *//*
 
             // START TODO ###################
 
@@ -83,7 +83,7 @@ public class FabricIK : MonoBehaviour
 
             // END TODO ###################
 
-            /*
+            *//*
              * Fill bonesLength[i] with the length between each bone.
              * We need to differenciate between two cases:
              * 
@@ -91,7 +91,7 @@ public class FabricIK : MonoBehaviour
              * 
              * Mid-bones: You can access to Transform.position for each bone and use Vector3.magnitude to calculate the distance between them.
              * Update also completeLength to keep track of the total length.
-             */
+             *//*
 
             if (i == bones.Length - 1)
             {
@@ -146,7 +146,7 @@ public class FabricIK : MonoBehaviour
             bonesPositions[i] = bones[i].position;
         }
 
-        /* 
+        *//* 
          * We first need to differenciate between two cases:
          * First, if the target is far away from the end-effector (target not reachable).
          * Meaning: Distance from bones[0] to target is larger than the length of the entire chain.
@@ -159,7 +159,7 @@ public class FabricIK : MonoBehaviour
          * The updated root bone position (bonesPositions[0]) should not change.
          * The other bones positions will be equal to the position of the previous bone plus the direction to the target * length of the bone.
          * Remember: All positions we are working with, are in world-space.
-         */
+         *//*
 
         // START TODO ###################
 
@@ -178,7 +178,7 @@ public class FabricIK : MonoBehaviour
 
         // END TODO ###################
 
-        /*
+        *//*
          * Second, if the target is closer, in such a way that the chain will need to move in order to reach it.
          * In this case, IK takes places. Fabric IK works with a Forward pass and a Backward pass:
          * 
@@ -191,7 +191,7 @@ public class FabricIK : MonoBehaviour
          *      O ======== O ======== O ======== O
          *          Target
          *            X
-         */
+         *//*
 
         else
         {
@@ -201,10 +201,10 @@ public class FabricIK : MonoBehaviour
                 // Backward pass (we skip the root bone, as we do not need to change it because in the final chain it will keep its position).
                 for (int i = bonesPositions.Length - 1; i > 0; i--)
                 {
-                    /*
+                    *//*
                      * In this pass, if the index belongs to the end-effector, we set its position to the target position.
                      * For the other bones, we just set their positions equal to the position of the previous bone plus the distance * direction to that bone (as we did before).
-                     */
+                     *//*
 
                     // START TODO ###################
                     if(i == bonesPositions.Length-1){
@@ -226,9 +226,9 @@ public class FabricIK : MonoBehaviour
                 // Forward pass.
                 for (int i = 1; i < bonesPositions.Length; i++)
                 {
-                    /*
+                    *//*
                      * Now, we do the same in reverse. We skip the root as it was not modified during the backward pass, and it will keep the original position.
-                     */
+                     *//*
 
                     // START TODO ###################
                     Vector3 directionToPrevBone = (bonesPositions[i] - bonesPositions[i-1]).normalized;
@@ -299,3 +299,4 @@ public class FabricIK : MonoBehaviour
         }
     }
 }
+*/

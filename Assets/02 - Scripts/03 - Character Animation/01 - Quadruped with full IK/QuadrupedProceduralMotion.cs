@@ -1,4 +1,4 @@
-using System.Collections;
+/*using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -162,12 +162,12 @@ public class QuadrupedProceduralMotion : MonoBehaviour
             }
         }
 
-        /*
+        *//*
          * In this layer, we need to refine the position and rotation of the hips based on the ground. Without this part, the animal would not lift its root body when walking on high terrains.
          * First, try to use the hit information to modify hips.position and move it up when you are in a higher ground.
          * Then, use also this information (normalTerrain) to rotate the root body and place it parallel to the ground. You can use Quaternion.FromToRotation() for that.
          * When you have the angle that you want to have in your root body, you can place it directly, or use some interpolation technique to go smoothly to that value, in order to have less drastical movements.
-         */
+         *//*
 
         // START TODO ###################
 
@@ -224,12 +224,12 @@ public class QuadrupedProceduralMotion : MonoBehaviour
         Quaternion currentLocalRotation = headBone.localRotation;
         headBone.localRotation = Quaternion.identity;
 
-        /* 
+        *//* 
          * First, we need to get goalWorldLookDir: the position of the goal with respect to the head transform (you can use Debug.DrawRay() to debug it).
          * Use InverseTransformDirection() and headbone.parent to transform it with respect to the parent of the head (goalLocalLookDir).
          * Use RotateTowards() to have Vector3.forward always looking to goalLocalLookDir.
          * Finally, define targetLocalRotation: The target local angle for your head. The forward axis (along the bone) will need to point to the object. To do this, you can use Quaternion.LookRotation().
-         */
+         *//*
 
         // START TODO ###################
 
@@ -240,11 +240,11 @@ public class QuadrupedProceduralMotion : MonoBehaviour
 
         // END TODO ###################
 
-        /* 
+        *//* 
          * Interpolation for damping. 
          * We do not apply directly the quaternion to the head (that would cause a quite robotic movement).
          * Instead, we just use interpolation to apply it over time, to provide a more natural effect.
-         */
+         *//*
 
         headBone.localRotation = Quaternion.Slerp(currentLocalRotation, targetLocalRotation, 1 - Mathf.Exp(-speedHead * Time.deltaTime));
     }
@@ -289,3 +289,4 @@ public class QuadrupedProceduralMotion : MonoBehaviour
 
     #endregion
 }
+*/
