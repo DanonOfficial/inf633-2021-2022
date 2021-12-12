@@ -34,7 +34,6 @@ public class CustomTerrain : MonoBehaviour {
     private GameObject highlight_go;
     private Projector highlight_proj;
     public static System.Random rnd = new System.Random();
-    private Vector2[,] windMap;
     private float [,] smellGrid;
 
     [SerializeField] Camera cam;
@@ -77,30 +76,13 @@ public class CustomTerrain : MonoBehaviour {
         saveDetails();
 
         cam = GameObject.FindGameObjectWithTag("SecondCamera").GetComponent<Camera>();
-        generateWindMap();
         smellGrid = new float[(int)terrain_size.x, (int)terrain_size.z];
     }
 
-    public void generateWindMap()
-    {
-        float width = terrainSize().x;
-        float height = width;
-        windMap = new Vector2[(int)(width), (int)(height)];
-        for (int i = 0; i < width; i++)
-        {
-            for(int j = 0; j < height; j++)
-            {
-                float x = Mathf.PerlinNoise(i / (2 * width), j / (2 * height));
-                float y = Mathf.PerlinNoise((i + width) / (2 * width), (j + height) / (2 * width));
-                windMap[i, j] = new Vector2(x, y) * 3; // just to get values, that actually will change
-            }
-        }
-    }
     public void updateSmellGrid(Vector2 pos, int smellRadius)
     {
         int posx = (int)pos.x;
         int posy = (int)pos.y;
-        //smellGrid[i, j] 
         for(int i = posx - smellRadius; i < posx + smellRadius && i < (int)terrain_size.x; i++)
         {
             for(int j = posy - smellRadius; j < posx + smellRadius && j < (int)terrain_size.z; j++)

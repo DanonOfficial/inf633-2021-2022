@@ -1,12 +1,12 @@
-﻿using System.Collections;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor;
 
-public class FabricIK : MonoBehaviour
+public class FabricIKQuadruped : MonoBehaviour
 {
     [Header("Chain Settings")]
-    public int chainLength = 3; // Number of spaces between the bone positions.
+    public int chainLength = 2; // Number of spaces between the bone positions.
 
     // Target (where we aim) and pole (to move along the multiple solutions for one target position).
     [Header("Target / Pole Settings")]
@@ -17,18 +17,32 @@ public class FabricIK : MonoBehaviour
     public int iterations = 10; // Solver iterations per update.
     public float delta = 0.001f; // Distance to the target when the solver stops.
 
-    // Bones information (to be initialized).
+    // Bones information (to be initialize).
     [Header("Bones Information")]
     public Transform[] bones;
     public Vector3[] bonesPositions;
     public float[] bonesLength;
     public float completeLength;
 
-    // Debug.
+    // This case we just hardcode the bones of the legs to avoid iteraing.
+    [Header("Bones Settings")]
+    public Transform firstBone;
+    public Vector3 firstBoneEulerAngleOffset;
+    public Transform secondBone;
+    public Vector3 secondBoneEulerAngleOffset;
+    public Transform thirdBone;
+    public Vector3 thirdBoneEulerAngleOffset;
+    public bool alignThirdBoneWithTargetRotation = true;
+
+    // Others.
     private Vector3[] startingBoneDirectionToNext;
     private Quaternion[] startingBoneRotation;
     private Quaternion startingTargetRotation;
     private Quaternion startingRotationRoot;
+
+    // Extra: Strength of going back to the start position.
+    [Range(0, 1f)]
+    public float snapBackStrength = 1f;
 
     // Awake is called when the script instance is being loaded.
     private void Awake()
@@ -57,9 +71,9 @@ public class FabricIK : MonoBehaviour
         startingBoneRotation = new Quaternion[chainLength + 1];
         startingTargetRotation = target.rotation;
 
-        // Initialize data.
+        // Initialize data (bones[] and bonesLength[]).
         // We need to fill the arrays described above with the information for each bone.
-        var current = this.transform;
+        var current = thirdBone.transform;
         for (var i = bones.Length - 1; i >= 0; i--)
         {
 
@@ -70,16 +84,8 @@ public class FabricIK : MonoBehaviour
 
             // START TODO ###################
 
-            // Just a placeholder. Change with the correct transform!
-
-            bones[i] = current; // do we need to propagate transform forward
+            bones[i] = current;
             startingBoneRotation[i] = current.rotation;
-
-            //bones[i] = transform.parent;
-
-
-            // bones[i] = ...
-            // startingBoneRotation[i] = ...
 
             // END TODO ###################
 
@@ -87,10 +93,10 @@ public class FabricIK : MonoBehaviour
              * Fill bonesLength[i] with the length between each bone.
              * We need to differenciate between two cases:
              * 
-             * Leaf bones (last bone in the chain):They do not have any length. We are only saving here its direction towards the target.
+             * Leaf bones (last bone in the chain):They do not have any length. We are only saving here its direction to the target.
              * 
              * Mid-bones: You can access to Transform.position for each bone and use Vector3.magnitude to calculate the distance between them.
-             * Update also completeLength to keep track of the total length.
+             * Use completeLength to keep track of the total length.
              */
 
             if (i == bones.Length - 1)
@@ -100,10 +106,9 @@ public class FabricIK : MonoBehaviour
             else
             {
                 // START TODO ###################
-                bonesLength[i] = (bones[i].position - bones[i + 1].position).magnitude;
+
+                bonesLength[i] = (bones[i + 1].position - current.position).magnitude;
                 completeLength += bonesLength[i];
-                // bonesLength[i] = ...
-                // completeLength += ...
 
                 // END TODO ###################
 
@@ -114,7 +119,7 @@ public class FabricIK : MonoBehaviour
     }
 
     // LateUpdate is called after all Update functions have been called.
-    void LateUpdate()
+    private void LateUpdate()
     {
         FastIK();
     }
@@ -122,8 +127,8 @@ public class FabricIK : MonoBehaviour
     /// <summary>
     /// Fast IK with Forward/Backward pass.
     /// </summary>
-    void FastIK()
-    {
+    private void FastIK()
+    {        
         // If no target is found.
         if (target == null)
         {
@@ -146,6 +151,10 @@ public class FabricIK : MonoBehaviour
             bonesPositions[i] = bones[i].position;
         }
 
+        // Extra: For correcting the rotations.
+        var rootRot = (bones[0].parent != null) ? bones[0].parent.rotation : Quaternion.identity;
+        var rootRotDiff = rootRot * Quaternion.Inverse(startingRotationRoot);
+
         /* 
          * We first need to differenciate between two cases:
          * First, if the target is far away from the end-effector (target not reachable).
@@ -163,20 +172,29 @@ public class FabricIK : MonoBehaviour
 
         // START TODO ###################
 
-        Vector3 directionToTarget = target.position - bones[0].position;
-        float distanceToTarget = directionToTarget.magnitude;
-        // Change condition!
-        print(completeLength);
-        print(distanceToTarget);
-        if (completeLength <= distanceToTarget) { 
-
-            for (int i = 1; i < bonesPositions.Length; i++) {
-                bonesPositions[i] = bonesPositions[i-1] + directionToTarget.normalized * bonesLength[i-1];
+        if ((target.position - bones[0].position).sqrMagnitude >= completeLength * completeLength)
+        {
+            var direction = (target.position - bonesPositions[0]).normalized;
+            for (int i = 1; i < bonesPositions.Length; i++)
+            {
+                bonesPositions[i] = bonesPositions[i - 1] + direction * bonesLength[i - 1];
             }
-            // bonesPositions[i] = ...
-        }
 
-        // END TODO ###################
+            // END TODO ###################
+
+            // Extra: Rotation fixes for the bones of this skeleton.
+            Vector3 towardPole = pole.position - firstBone.position;
+            Vector3 towardTarget = target.position - firstBone.position;
+
+            bones[0].rotation = Quaternion.LookRotation(towardTarget, towardPole);
+            bones[0].localRotation *= Quaternion.Euler(firstBoneEulerAngleOffset);
+
+            bones[1].rotation = Quaternion.LookRotation(towardTarget, towardPole);
+            bones[1].localRotation *= Quaternion.Euler(secondBoneEulerAngleOffset);
+
+            bones[2].rotation = target.rotation;
+            bones[2].localRotation *= Quaternion.Euler(thirdBoneEulerAngleOffset);
+        }
 
         /*
          * Second, if the target is closer, in such a way that the chain will need to move in order to reach it.
@@ -195,6 +213,12 @@ public class FabricIK : MonoBehaviour
 
         else
         {
+            // Extra: Going back to original position with certain strength.
+            for (int i = 0; i < bonesPositions.Length - 1; i++)
+            {
+                bonesPositions[i + 1] = Vector3.Lerp(bonesPositions[i + 1], bonesPositions[i] + rootRotDiff * startingBoneDirectionToNext[i], snapBackStrength);
+            }
+
             // We go though each iteration.
             for (int ite = 0; ite < iterations; ite++)
             {
@@ -207,18 +231,15 @@ public class FabricIK : MonoBehaviour
                      */
 
                     // START TODO ###################
-                    if(i == bonesPositions.Length-1){
+
+                    if (i == bonesPositions.Length - 1)
+                    {
                         bonesPositions[i] = target.position;
                     }
                     else
                     {
-                        Vector3 directionToPrevBone = (bonesPositions[i] - bonesPositions[i + 1]).normalized;
-                        bonesPositions[i] = bonesPositions[i + 1] + directionToPrevBone * bonesLength[i];
+                        bonesPositions[i] = bonesPositions[i + 1] + (bonesPositions[i] - bonesPositions[i + 1]).normalized * bonesLength[i];
                     }
-                    // if...
-                    //     bonesPositions[i] = ...
-                    // else...
-                    //     bonesPositions[i] = ...
 
                     // END TODO ###################
                 }
@@ -231,8 +252,8 @@ public class FabricIK : MonoBehaviour
                      */
 
                     // START TODO ###################
-                    Vector3 directionToPrevBone = (bonesPositions[i] - bonesPositions[i-1]).normalized;
-                    bonesPositions[i] = bonesPositions[i-1] + directionToPrevBone * bonesLength[i-1];
+
+                    bonesPositions[i] = bonesPositions[i - 1] + (bonesPositions[i] - bonesPositions[i - 1]).normalized * bonesLength[i - 1];
 
                     // END TODO ###################
 
@@ -256,7 +277,7 @@ public class FabricIK : MonoBehaviour
                     var projectedPole = plane.ClosestPointOnPlane(pole.position);
                     var projectedBone = plane.ClosestPointOnPlane(bonesPositions[i]);
                     var angle = Vector3.SignedAngle(projectedBone - bonesPositions[i - 1], projectedPole - bonesPositions[i - 1], plane.normal);
-                    bonesPositions[i] = Quaternion.AngleAxis(angle, plane.normal) * (bonesPositions[i] - bonesPositions[i - 1]) + bonesPositions[i - 1]; 
+                    bonesPositions[i] = Quaternion.AngleAxis(angle, plane.normal) * (bonesPositions[i] - bonesPositions[i - 1]) + bonesPositions[i - 1];
                 }
             }
 
@@ -276,26 +297,6 @@ public class FabricIK : MonoBehaviour
         for (int i = 0; i < bonesPositions.Length; i++)
         {
             bones[i].position = bonesPositions[i];
-        }
-    }
-
-    /// <summary>
-    /// Function to draw some rectangles ("Handles") between the joints, for better visualization.
-    /// </summary>
-    private void OnDrawGizmos()
-    {
-        // We start in the end-effector where the script is attached.
-        var current = this.transform;
-
-        // We go though the chain, drawing handles between the first joint (current.position) and the parent one (current.parent.position).
-        for (int i = 0; i < chainLength && current != null && current.parent != null; i++)
-        {
-            var scale = Vector3.Distance(current.position, current.parent.position) * 0.1f;
-            Handles.matrix = Matrix4x4.TRS(current.position, Quaternion.FromToRotation(Vector3.up, current.parent.position - current.position), new Vector3(scale, Vector3.Distance(current.parent.position, current.position), scale));
-            Handles.color = Color.blue;
-            Handles.DrawWireCube(Vector3.up * 0.5f, Vector3.one);
-            
-            current = current.parent;
         }
     }
 }

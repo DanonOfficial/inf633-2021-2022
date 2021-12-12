@@ -20,6 +20,8 @@ public class GPUGardener : MonoBehaviour
 		var terrainData = Terrain.activeTerrain.terrainData;
 		float width = terrainSize.x;
 		float height = width;
+		print(width);
+		print(height);
 		if (gridSpawn)
 		{
 			for (float zi = 0; zi <= width; zi += gridSize)
@@ -32,10 +34,12 @@ public class GPUGardener : MonoBehaviour
 
 						Vector3 position = terrain.getInterp3(xi, zi);// new Vector3(xi, terrain.getInterp(xi, zi), zi);\
 						position.y = terrainData.GetInterpolatedHeight(xi / width, zi / height);
-						//todo: add random scattering
-						//todo: random rotation
-						//todo super optional: random sway
+						//position.y = terrain.get(xi, zi);
 						instance.transform.position = position;
+						if (zi < 100 && xi < 100)
+                        {
+							print(instance.transform.position);
+                        }
 						float scale_diff = Mathf.Abs(terrain.max_scale - terrain.min_scale);
 						float scale_min = Mathf.Min(terrain.max_scale, terrain.min_scale);
 						float scale = (float)CustomTerrain.rnd.NextDouble() * scale_diff + scale_min;

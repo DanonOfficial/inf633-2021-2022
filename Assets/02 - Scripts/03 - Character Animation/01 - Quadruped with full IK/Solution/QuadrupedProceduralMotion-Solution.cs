@@ -85,6 +85,7 @@ public class QuadrupedProceduralMotion : MonoBehaviour
     /// </summary>
     private void RootMotion()
     {
+
         // Get the vector towards the goal and projectected it on the plane defined by the normal transform.up.
         Vector3 towardGoal = goal.position - transform.position;
         Vector3 towardGoalProjected = Vector3.ProjectOnPlane(towardGoal, transform.up);
@@ -171,8 +172,10 @@ public class QuadrupedProceduralMotion : MonoBehaviour
 
         // START TODO ###################
 
-        // hips.position = ...
-        // hips.rotation = ...
+        hips.position = new Vector3(hips.position.x, constantHipsPosition.y + posHit.y, hips.position.z);
+
+        Quaternion grndTilt = Quaternion.FromToRotation(hips.up, normalTerrain);
+        hips.rotation = Quaternion.Slerp(hips.rotation, grndTilt * hips.rotation, 1 - Mathf.Exp(-heightAcceleration * Time.deltaTime));
 
         // END TODO ###################
     }
@@ -233,10 +236,13 @@ public class QuadrupedProceduralMotion : MonoBehaviour
 
         // START TODO ###################
 
-        // goalWorldLookDir = ...
-        // goalLocalLookDir = ...
+        goalWorldLookDir = goal.position - headBone.position;
+        Debug.DrawRay(headBone.position, goalWorldLookDir, Color.red);
 
-        Quaternion targetLocalRotation = Quaternion.identity; // Change!
+        goalLocalLookDir = headBone.parent.InverseTransformDirection(goalWorldLookDir);
+        goalLocalLookDir = Vector3.RotateTowards(Vector3.forward, goalLocalLookDir, Mathf.Deg2Rad * angleHeadLimit, 0);
+
+        Quaternion targetLocalRotation = Quaternion.LookRotation(goalLocalLookDir, Vector3.up);
 
         // END TODO ###################
 
@@ -247,6 +253,8 @@ public class QuadrupedProceduralMotion : MonoBehaviour
          */
 
         headBone.localRotation = Quaternion.Slerp(currentLocalRotation, targetLocalRotation, 1 - Mathf.Exp(-speedHead * Time.deltaTime));
+
+        // BONUS: Track eyes to the target as well.
     }
 
     #endregion
